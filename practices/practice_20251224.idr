@@ -40,5 +40,7 @@ total
 lemma_212 : (A : Type) -> (x, y, z : A) -> x = y -> y = z -> x = z
 lemma_212 a x y z prf prf1 = trans prf prf1
 
-lemma_214_1 : (A : Type) -> (x, y, z, w : A) -> (p : x = y) -> (q : y = z) -> (r : z = w) -> p = trans p (Refl {x = y})
+total
+lemma_214_1 : (A : Type) -> (x, y, z, w : A) -> (p : x = y) -> (q : y = z) -> (r : z = w) -> trans (Refl {x = x}) p = p
+lemma_214_1 a x y z w p q r = ?lemma_214_1_rhs
 
