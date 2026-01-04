@@ -13,13 +13,7 @@ mySnd : {0 a, b : Type} -> MyPair a b -> b
 mySnd (MyMkPair x y) = y
 
 ttfp_exercise_45 : {0 a, b, c : Type} -> ((x : a) -> (y : b) -> c) -> (MyPair a b -> c)
-ttfp_exercise_45 f g = let
-                 x : a
-                 y : b
-
-
--- p : MyPair a b
--- にmyFstを適用するとどうなるんだろう。
+ttfp_exercise_45 f x = f (myFst x) (mySnd x)
 
 -- Implication
 -- `->`そのものがImplicationなので少し対応がわかりにくい。
@@ -33,7 +27,8 @@ data MyEither : Type -> Type -> Type where
 -- y : b
 -- Inr b : MyEither a b (ID2)
 
--- Empty type
+-- \bot
+-- \top
 -- Universal quantifier
 -- Existencial quantifier
 
