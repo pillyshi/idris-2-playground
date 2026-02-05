@@ -24,5 +24,3 @@ ttfp_exercise_49_1 f x y = f (x, y)
 ttfp_exercise_49_2 : {0 a, b, c : Type} -> (a -> b -> c) -> ((a, b) -> c)
 ttfp_exercise_49_2 f x = f (fst x) (snd x)
 
-
-
