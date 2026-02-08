@@ -2,7 +2,7 @@ import Syntax.PreorderReasoning
 
 infixl 8 `p`
 
--- Operators
+-- Operator
 
 0 Op1 : Type -> Type
 Op1 a = a -> a
@@ -14,40 +14,34 @@ Op2 a = a -> a -> a
 
 0 Associative : Op2 a -> Type
 Associative p = {u, v, w : a} -> u `p` (v `p` w) === (u `p` v) `p` w
--- Associative p = {u, v, w : a} -> p u (p v w) === p (p u v) w
 
 0 Commutative : Op2 a -> Type
-Commutative p = {u, v : a} -> u `p` v === v `p` u
--- Commutative p = {u, v : a} -> p u v === p v u
+Commutative p = {u, v : a} -> p u v === p v u
 
 0 LeftNeutral : Op2 a -> (z : a) -> Type
-LeftNeutral p z = {u : a} -> z `p` u === u
--- LeftNeutral p z = {u : a} -> p z u === u
+LeftNeutral p z = {u : a} -> p z u === u
 
 0 RightNeutral : Op2 a -> (z : a) -> Type
-RightNeutral p z = {u : a} -> u `p` z === u
--- RightNeutral p z = {u : a} -> p u z === u
+RightNeutral p z = {u : a} -> p u z === u
 
 0 LeftInverse : Op2 a -> (z : a) -> (i : Op1 a) -> Type
-LeftInverse p z i = {u : a} -> i u `p` u === z
--- LeftInverse p z i = {u : a} -> p i u u === z
+LeftInverse p z i = {u : a} -> p (i u) u === z
 
 0 RightInverse : Op2 a -> (z : a) -> (i : Op1 a) -> Type
--- RightInverse p z i = {u : a} -> p u i u === z
+RightInverse p z i = {u : a} -> p u (i u) === z
 
 -- Lemmata
-
-rightNeutral : LeftNeutral p z -> Commutative p -> RightNeutral p z
-rightNeutral ln com = Calc $
-  |~ u `p` z
-  ~~ z `p` u ... com
-  ~~ u ... ln
-
-leftNeutral : RightNeutral p z -> Commutative p -> LeftNeutral p z
+0 leftNeutral : RightNeutral p z -> Commutative p -> LeftNeutral p z
 leftNeutral rn com = Calc $
-  |~ z `p` u
-  ~~ u `p` z ... com
-  ~~ u ... rn
+  |~ p z u
+  ~~ p u z ... com
+  ~~ u ... rn  
+
+0 rightNeutral : LeftNeutral p z -> Commutative p -> RightNeutral p z
+rightNeutral ln com = Calc $
+  |~ p u z
+  ~~ p z u ... com
+  ~~ u ... ln
 
 -- SemiGroup
 
@@ -61,6 +55,7 @@ record CommutativeSemiGroup (a : Type) (p : Op2 a) where
   commutative : Commutative p
 
 namespace CommutativeSemiGroup
+
   (.sgrp) : CommutativeSemiGroup a p -> SemiGroup a p
   c.sgrp = MkSemiGroup c.associative
 
@@ -81,8 +76,10 @@ record CommutativeMonoid (a : Type) (p : Op2 a) (z : a) where
   associative : Associative p
   commutative : Commutative p
   leftNeutral : LeftNeutral p z
+  -- rightNeutral can be derive from leftNeutral and commutative
 
 namespace CommutativeMonoid
+
   (.csgrp) : CommutativeMonoid a p z -> CommutativeSemiGroup a p
   m.csgrp = MkCommutativeSemiGroup m.associative m.commutative
 
@@ -96,17 +93,31 @@ record Group (a : Type) (p : Op2 a) (z : a) (i : Op1 a) where
   leftInverse : LeftInverse p z i
   rightInverse : RightInverse p z i
 
+
 0 leftInjective : Group a p z i
   -> {u, v, w : a}
   -> u `p` v === u `p` w
   -> v === w
 leftInjective g prf = Calc $
   |~ v
-  ~~ z `p` v ..< g.leftNeutral -- z p v === v
-  ~~ (i u `p` u) `p` v ..< cong (`p` v) g.leftInverse -- i u `p` u `p` v === z `p` v
-  ~~ i u `p` (u `p` v) ..< g.associative -- (i u `p` u) `p` v === i u `p` (u `p` v)
+  ~~ z `p` v ..< g.leftNeutral
+  ~~ (i u `p` u) `p` v ..< cong (`p` v) g.leftInverse
+  ~~ i u `p` (u `p` v) ..< g.associative
   ~~ i u `p` (u `p` w) ... cong (i u `p`) prf
   ~~ (i u `p` u) `p` w ... g.associative
-  ~~ z `p` w ... cong (`p` w) g.leftInverse -- i u `p` u === z
+  ~~ z `p` w ... cong (`p` w) g.leftInverse
   ~~ w ... g.leftNeutral
 
+0 solveInverseLeft : Group a p z i
+  -> {u, v : a}
+  -> v `p` u === z
+  -> u === i v
+solveInverseLeft g prf = Calc $
+  |~ u
+  ~~ z `p` u ..< g.leftNeutral
+  ~~ (i v `p` v) `p` u ..< cong (`p` u) g.leftInverse
+  ~~ i v `p` (v `p` u) ..< g.associative
+  ~~ i v `p` z ... cong (i v `p`) prf
+  ~~ i v ... g.rightNeutral
+
+0 invertProduct
